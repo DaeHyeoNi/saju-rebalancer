@@ -1,6 +1,12 @@
 import ReactMarkdown from 'react-markdown'
 import type { SajuAnalyzeResponse, RebalanceResponse, PortfolioItem } from '../types'
 
+// CommonMark 스펙상 )**한글 패턴에서 닫는 ** 가 right-flanking으로 인식 안 되는 버그 수정.
+// ) 와 ** 사이에 ZWNJ(U+200C)를 삽입하면 파서가 정상 인식하며 시각적으로 무해함.
+function fixBold(text: string): string {
+  return text.replace(/\)\*\*/g, ')\u200C**')
+}
+
 interface Props {
   sajuData: SajuAnalyzeResponse
   result: RebalanceResponse
@@ -54,7 +60,7 @@ export default function Step3Results({ sajuData, result, portfolioItems, onReset
           })}
         </div>
         <div className="reading-text">
-          <ReactMarkdown>{sajuData.reading}</ReactMarkdown>
+          <ReactMarkdown>{fixBold(sajuData.reading)}</ReactMarkdown>
         </div>
       </section>
 
@@ -117,7 +123,7 @@ export default function Step3Results({ sajuData, result, portfolioItems, onReset
       <section className="result-section">
         <h3>종합 해설</h3>
         <div className="narrative-text">
-          <ReactMarkdown>{result.narrative}</ReactMarkdown>
+          <ReactMarkdown>{fixBold(result.narrative)}</ReactMarkdown>
         </div>
       </section>
 
