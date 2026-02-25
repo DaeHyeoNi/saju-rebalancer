@@ -22,10 +22,10 @@ const ACTION_COLOR: Record<string, string> = {
 
 export default function Step3Results({ sajuData, result, portfolioItems, onReset }: Props) {
   const totalBuy = result.rebalance_table
-    .filter(r => r.action === '매수')
+    .filter(r => r.action === '매수' && r.name !== '현금')
     .reduce((s, r) => s + r.amount, 0)
   const totalSell = result.rebalance_table
-    .filter(r => r.action === '매도')
+    .filter(r => r.action === '매도' && r.name !== '현금')
     .reduce((s, r) => s + r.amount, 0)
 
   const totalCurrentValue = portfolioItems.reduce((s, i) => s + i.current_value, 0)
