@@ -190,7 +190,8 @@ async def stream_rebalancing(
     """Gemini 스트리밍: ('chunk', 텍스트) 를 yield하다가 마지막에 ('done', 파싱된 dict) yield."""
     prompt = _build_rebalancing_prompt(saju_reading, portfolio_items, additional_cash, user_preference)
     collected: list[str] = []
-    async for chunk in _get_client().aio.models.generate_content_stream(model=_MODEL, contents=prompt):
+    response_stream = await _get_client().aio.models.generate_content_stream(model=_MODEL, contents=prompt)
+    async for chunk in response_stream:
         if chunk.text:
             collected.append(chunk.text)
             yield "chunk", chunk.text
