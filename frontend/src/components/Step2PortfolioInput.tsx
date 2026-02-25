@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { SajuAnalyzeResponse, PortfolioParseResponse, RebalanceResponse, RebalanceRequest, PortfolioItem } from '../types'
 import { api } from '../api/client'
 
@@ -16,6 +16,27 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState<'input' | 'confirm'>('input')
+  const [streamText, setStreamText] = useState('')
+  const streamBoxRef = useRef<HTMLDivElement>(null)
+
+  // 스트리밍 텍스트가 추가될 때 자동 스크롤
+  useEffect(() => {
+    if (streamBoxRef.current) {
+      streamBoxRef.current.scrollTop = streamBoxRef.current.scrollHeight
+    }
+  }, [streamText])
+
+  const numericCash = additionalCash ? parseFloat(additionalCash) : 0
+
+  const cashItem: PortfolioItem = {
+    name: '현금',
+    currency: 'KRW',
+    quantity: null,
+    purchase_price: null,
+    current_price: null,
+    current_value: numericCash,
+    return_rate: null,
+  }
 
   const handleParsePortfolio = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,7 +45,7 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
     try {
       const result = await api.parsePortfolio({
         raw_text: rawText,
-        additional_cash: additionalCash ? parseFloat(additionalCash) : null,
+        additional_cash: numericCash || null,
       })
       setParsedPortfolio(result)
       setMissingWarning(result.missing_fields)
@@ -43,16 +64,30 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
       return
     }
     setLoading(true)
+    setStreamText('')
     setError(null)
+
+    // 현금 항목을 포함한 전체 포트폴리오
+    const allItems: PortfolioItem[] = [...parsedPortfolio.items, cashItem]
+
     try {
       const req: RebalanceRequest = {
         saju_id: sajuData.saju_id,
-        portfolio_items: parsedPortfolio.items,
-        additional_cash: parsedPortfolio.additional_cash,
+        portfolio_items: allItems,
+        additional_cash: null,   // 현금이 portfolio_items에 포함되므로 별도 전달 안 함
         user_preference: preference,
       }
-      const result = await api.analyzeRebalance(req)
-      onComplete(result, parsedPortfolio.items)
+
+      for await (const event of api.streamRebalance(req)) {
+        if (event.type === 'chunk') {
+          setStreamText(prev => prev + event.text)
+        } else if (event.type === 'done') {
+          onComplete(event.data, allItems)
+          return
+        } else if (event.type === 'error') {
+          throw new Error(event.detail)
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '리밸런싱 분석에 실패했습니다.')
     } finally {
@@ -85,7 +120,7 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
             <label>추가 투입 가능 현금 (원, 선택)</label>
             <input
               type="number"
-              placeholder="예: 1000000"
+              placeholder="예: 1000000 (비워두면 0원으로 가정)"
               value={additionalCash}
               min={0}
               onChange={e => setAdditionalCash(e.target.value)}
@@ -133,12 +168,15 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
                   <td>{item.return_rate != null ? `${item.return_rate > 0 ? '+' : ''}${item.return_rate}%` : '-'}</td>
                 </tr>
               ))}
+              {/* 현금 행 */}
+              <tr className="cash-row">
+                <td>현금</td>
+                <td>-</td><td>-</td><td>-</td>
+                <td>{numericCash.toLocaleString()}원</td>
+                <td>-</td>
+              </tr>
             </tbody>
           </table>
-
-          {parsedPortfolio.additional_cash && (
-            <p>추가 현금: <strong>{parsedPortfolio.additional_cash.toLocaleString()}원</strong></p>
-          )}
 
           <div className="form-section" style={{ marginTop: '1.5rem' }}>
             <label>운영 방안 / 투자 선호 전략</label>
@@ -154,10 +192,23 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
 
           {error && <p className="error">{error}</p>}
 
+          {/* 스트리밍 미리보기 */}
+          {loading && (
+            <div className="stream-preview">
+              <p className="stream-label">AI가 분석 중입니다… {streamText ? '(실시간 생성 중)' : '(연결 중…)'}</p>
+              {streamText && (
+                <div className="stream-box" ref={streamBoxRef}>
+                  {streamText}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="btn-group">
             <button
               type="button"
               className="btn-secondary"
+              disabled={loading}
               onClick={() => { setStep('input'); setParsedPortfolio(null) }}
             >
               포트폴리오 수정
@@ -168,7 +219,7 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
               disabled={loading}
               onClick={handleAnalyze}
             >
-              {loading ? '리밸런싱 분석 중…' : '리밸런싱 분석하기'}
+              {loading ? '분석 중…' : '리밸런싱 분석하기'}
             </button>
           </div>
         </div>

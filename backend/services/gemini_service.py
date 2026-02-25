@@ -122,26 +122,15 @@ def parse_portfolio_text(raw_text: str) -> list[dict[str, Any]]:
 
 # ── 3. 리밸런싱 분석 ──────────────────────────────────────────────────────────
 
-def generate_rebalancing(
+def _build_rebalancing_prompt(
     saju_reading: str,
     portfolio_items: list[dict[str, Any]],
     additional_cash: float | None,
     user_preference: str,
-) -> dict[str, Any]:
-    """사주풀이 + 포트폴리오 + 사용자 선호를 통합하여 리밸런싱 결과를 생성.
-
-    반환 형식:
-    {
-      "rebalance_table": [
-        {"name": str, "action": "매수"|"매도"|"유지", "amount": float, "target_value": float, "reason": str}
-      ],
-      "narrative": str
-    }
-    """
+) -> str:
     portfolio_json = json.dumps(portfolio_items, ensure_ascii=False, indent=2)
     cash_str = f"{additional_cash:,.0f}원" if additional_cash else "없음"
-
-    prompt = f"""당신은 사주 명리학과 투자 분석을 결합한 전문가입니다.
+    return f"""당신은 사주 명리학과 투자 분석을 결합한 전문가입니다.
 
 ## 사주 풀이
 {saju_reading}
@@ -157,6 +146,7 @@ def generate_rebalancing(
 
 위 정보를 종합하여 포트폴리오 리밸런싱 분석을 수행하세요.
 포트폴리오의 current_value 및 모든 금액은 원화(KRW) 기준입니다.
+포트폴리오에 "현금" 항목이 있다면 이를 리밸런싱에 반드시 포함하세요.
 
 응답은 반드시 아래 JSON 형식으로 작성하고, 마크다운 코드블록으로 감싸세요:
 ```json
@@ -176,7 +166,32 @@ def generate_rebalancing(
 
 주의사항:
 - 사주의 용신/기신을 투자 성향에 반영하세요.
-- 추가 현금이 있다면 리밸런싱에 활용하세요.
 - 사용자 선호 전략을 최대한 존중하면서 사주 관점을 더하세요."""
+
+
+def generate_rebalancing(
+    saju_reading: str,
+    portfolio_items: list[dict[str, Any]],
+    additional_cash: float | None,
+    user_preference: str,
+) -> dict[str, Any]:
+    """사주풀이 + 포트폴리오 + 사용자 선호를 통합하여 리밸런싱 결과를 생성."""
+    prompt = _build_rebalancing_prompt(saju_reading, portfolio_items, additional_cash, user_preference)
     result = _call(prompt)
     return _extract_json(result)
+
+
+async def stream_rebalancing(
+    saju_reading: str,
+    portfolio_items: list[dict[str, Any]],
+    additional_cash: float | None,
+    user_preference: str,
+):
+    """Gemini 스트리밍: ('chunk', 텍스트) 를 yield하다가 마지막에 ('done', 파싱된 dict) yield."""
+    prompt = _build_rebalancing_prompt(saju_reading, portfolio_items, additional_cash, user_preference)
+    collected: list[str] = []
+    async for chunk in _get_client().aio.models.generate_content_stream(model=_MODEL, contents=prompt):
+        if chunk.text:
+            collected.append(chunk.text)
+            yield "chunk", chunk.text
+    yield "done", _extract_json("".join(collected))
