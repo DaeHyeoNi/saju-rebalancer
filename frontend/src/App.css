@@ -140,7 +140,7 @@ textarea { resize: vertical; }
   border-bottom: 1px solid #ede7e0;
   white-space: nowrap;
 }
-.reason-cell { font-size: 0.83rem; color: #5a5a5a; white-space: normal; min-width: 140px; max-width: 220px; word-break: break-word; }
+.rebalance-table .reason-cell { font-size: 0.83rem; color: #5a5a5a; white-space: normal; min-width: 140px; max-width: 220px; word-break: break-word; }
 
 /* 마크다운 렌더링 스타일 */
 .reading-text p, .narrative-text p { margin-bottom: 0.75rem; }
