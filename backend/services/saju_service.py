@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -63,8 +63,11 @@ def get_or_create_saju(
         .first()
     )
     if cached:
-        # 사주 풀이는 날짜(대운/세운) 기반 정보를 포함하므로 당일 생성된 캐시만 유효
-        if cached.created_at.date() == datetime.utcnow().date():
+        # 사주 풀이는 날짜(대운/세운) 기반 정보를 포함하므로 당일 생성된 캐시만 유효 (KST 기준)
+        KST = timezone(timedelta(hours=9))
+        today_kst = datetime.now(KST).date()
+        created_kst = cached.created_at.replace(tzinfo=timezone.utc).astimezone(KST).date()
+        if created_kst == today_kst:
             return cached
         # 만료된 캐시 삭제 후 재계산
         db.delete(cached)
