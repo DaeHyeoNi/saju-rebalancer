@@ -20,6 +20,16 @@ const ACTION_COLOR: Record<string, string> = {
   '매수': '#2e7d32',
   '매도': '#c62828',
   '유지': '#1565c0',
+  '비중확대': '#2e7d32',
+  '비중축소': '#c62828',
+}
+
+function displayAction(name: string, action: string): string {
+  if (name === '현금') {
+    if (action === '매수') return '비중확대'
+    if (action === '매도') return '비중축소'
+  }
+  return action
 }
 
 export default function Step3Results({ sajuData, result, portfolioItems, reportUuid, onReset }: Props) {
@@ -43,9 +53,8 @@ export default function Step3Results({ sajuData, result, portfolioItems, reportU
   const totalCurrentValue = portfolioItems.reduce((s, i) => s + i.current_value, 0)
   const totalTargetValue = result.rebalance_table.reduce((s, r) => s + r.target_value, 0)
 
-  // 종목명 → 현재가/현재가치/통화 매핑
-  const priceMap = new Map(portfolioItems.map(i => [i.name, i.current_price ?? null]))
-  const currencyMap = new Map(portfolioItems.map(i => [i.name, i.currency ?? 'KRW']))
+  // 종목명 → 수량/현재가치 매핑 (통화 무관하게 KRW 단가 역산에 사용)
+  const quantityMap = new Map(portfolioItems.map(i => [i.name, i.quantity ?? null]))
   const currentValueMap = new Map(portfolioItems.map(i => [i.name, i.current_value]))
 
   return (
@@ -99,24 +108,27 @@ export default function Step3Results({ sajuData, result, portfolioItems, reportU
             </thead>
             <tbody>
               {result.rebalance_table.map((row, i) => {
-                const currentPrice = priceMap.get(row.name)
-                const isUSD = currencyMap.get(row.name) === 'USD'
-                // USD 종목은 단가가 달러라 원화 거래금액으로 주수 계산 불가
-                const tradeQty = !isUSD && currentPrice && currentPrice > 0
-                  ? Math.round(row.amount / currentPrice)
+                const quantity = quantityMap.get(row.name)
+                const currentValue = currentValueMap.get(row.name) ?? 0
+                // 통화 무관하게 KRW 단가 역산: current_value(KRW) / quantity
+                // USD 종목도 동일 공식으로 주수 계산 가능
+                const impliedKrwPrice = quantity && quantity > 0 ? currentValue / quantity : null
+                const tradeQty = impliedKrwPrice && row.action !== '유지' && row.name !== '현금'
+                  ? Math.round(row.amount / impliedKrwPrice)
                   : null
                 const beforePct = totalCurrentValue > 0
-                  ? ((currentValueMap.get(row.name) ?? 0) / totalCurrentValue * 100).toFixed(1)
+                  ? (currentValue / totalCurrentValue * 100).toFixed(1)
                   : '-'
                 const afterPct = totalTargetValue > 0
                   ? (row.target_value / totalTargetValue * 100).toFixed(1)
                   : '-'
+                const label = displayAction(row.name, row.action)
 
                 return (
                   <tr key={i}>
                     <td>{row.name}</td>
-                    <td style={{ color: ACTION_COLOR[row.action] ?? '#333', fontWeight: 700 }}>
-                      {row.action}
+                    <td style={{ color: ACTION_COLOR[label] ?? '#333', fontWeight: 700 }}>
+                      {label}
                     </td>
                     <td>{tradeQty != null ? `${tradeQty}주` : '-'}</td>
                     <td>{row.amount.toLocaleString()}원</td>

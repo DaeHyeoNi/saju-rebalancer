@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -63,7 +63,12 @@ def get_or_create_saju(
         .first()
     )
     if cached:
-        return cached
+        # 사주 풀이는 날짜(대운/세운) 기반 정보를 포함하므로 1일 TTL 적용
+        if datetime.utcnow() - cached.created_at < timedelta(days=1):
+            return cached
+        # 만료된 캐시 삭제 후 재계산
+        db.delete(cached)
+        db.commit()
 
     # 캐시 미스 → 계산 + Gemini 풀이
     pillars = _compute_pillars(birth_year, birth_month, birth_day, birth_hour, gender)
