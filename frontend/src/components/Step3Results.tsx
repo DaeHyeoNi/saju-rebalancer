@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import type { SajuAnalyzeResponse, RebalanceResponse, PortfolioItem } from '../types'
 
@@ -11,6 +12,7 @@ interface Props {
   sajuData: SajuAnalyzeResponse
   result: RebalanceResponse
   portfolioItems: PortfolioItem[]
+  reportUuid?: string
   onReset: () => void
 }
 
@@ -20,7 +22,17 @@ const ACTION_COLOR: Record<string, string> = {
   '유지': '#1565c0',
 }
 
-export default function Step3Results({ sajuData, result, portfolioItems, onReset }: Props) {
+export default function Step3Results({ sajuData, result, portfolioItems, reportUuid, onReset }: Props) {
+  const [copied, setCopied] = useState(false)
+  const shareUrl = reportUuid ? `${window.location.origin}/rebalancing-report/${reportUuid}` : null
+
+  const handleCopy = () => {
+    if (!shareUrl) return
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
   const totalBuy = result.rebalance_table
     .filter(r => r.action === '매수' && r.name !== '현금')
     .reduce((s, r) => s + r.amount, 0)
@@ -126,6 +138,19 @@ export default function Step3Results({ sajuData, result, portfolioItems, onReset
           <ReactMarkdown>{fixBold(result.narrative)}</ReactMarkdown>
         </div>
       </section>
+
+      {shareUrl && (
+        <section className="result-section share-section">
+          <h3>결과 공유</h3>
+          <p className="hint">아래 URL로 이 분석 결과를 언제든지 다시 볼 수 있습니다.</p>
+          <div className="share-url-row">
+            <input className="share-url-input" readOnly value={shareUrl} onClick={e => (e.target as HTMLInputElement).select()} />
+            <button className="btn-copy" onClick={handleCopy}>
+              {copied ? '복사됨!' : 'URL 복사'}
+            </button>
+          </div>
+        </section>
+      )}
 
       <button className="btn-secondary" onClick={onReset}>
         처음부터 다시 하기

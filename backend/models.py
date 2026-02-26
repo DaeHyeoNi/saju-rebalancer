@@ -18,3 +18,15 @@ class SajuCache(Base):
     __table_args__ = (
         UniqueConstraint("birth_date", "birth_hour", "gender", name="uq_saju_key"),
     )
+
+
+class RebalancingReport(Base):
+    __tablename__ = "rebalancing_report"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    uuid: Mapped[str] = mapped_column(String(36), unique=True, nullable=False, index=True)
+    saju_data: Mapped[str] = mapped_column(Text)       # JSON {pillars, reading}
+    portfolio_items: Mapped[str] = mapped_column(Text)  # JSON array
+    rebalance_table: Mapped[str] = mapped_column(Text)  # JSON array
+    narrative: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

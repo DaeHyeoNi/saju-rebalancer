@@ -62,3 +62,12 @@ class RebalanceItem(BaseModel):
 class RebalanceResponse(BaseModel):
     rebalance_table: list[RebalanceItem]
     narrative: str     # 전체 분석 해설 (사주 + 포트폴리오 통합)
+    report_uuid: str = ""
+
+
+class RebalancingReportData(BaseModel):
+    saju_data: dict[str, Any]        # {pillars, reading}
+    portfolio_items: list[PortfolioItem]
+    rebalance_table: list[RebalanceItem]
+    narrative: str
+    created_at: str

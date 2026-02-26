@@ -54,4 +54,16 @@ export interface RebalanceItem {
 export interface RebalanceResponse {
   rebalance_table: RebalanceItem[]
   narrative: string
+  report_uuid?: string
+}
+
+export interface RebalancingReportData {
+  saju_data: {
+    pillars: Record<string, unknown>
+    reading: string
+  }
+  portfolio_items: PortfolioItem[]
+  rebalance_table: RebalanceItem[]
+  narrative: string
+  created_at: string
 }

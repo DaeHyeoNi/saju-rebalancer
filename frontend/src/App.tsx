@@ -1,13 +1,15 @@
 import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import type { SajuAnalyzeResponse, RebalanceResponse, PortfolioItem } from './types'
 import Step1SajuInput from './components/Step1SajuInput'
 import Step2PortfolioInput from './components/Step2PortfolioInput'
 import Step3Results from './components/Step3Results'
+import RebalancingReportPage from './components/RebalancingReportPage'
 import './App.css'
 
 type Step = 1 | 2 | 3
 
-export default function App() {
+function WizardApp() {
   const [step, setStep] = useState<Step>(1)
   const [sajuData, setSajuData] = useState<SajuAnalyzeResponse | null>(null)
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([])
@@ -51,9 +53,24 @@ export default function App() {
           <Step2PortfolioInput sajuData={sajuData} onComplete={handleRebalanceComplete} />
         )}
         {step === 3 && sajuData && result && (
-          <Step3Results sajuData={sajuData} result={result} portfolioItems={portfolioItems} onReset={handleReset} />
+          <Step3Results
+            sajuData={sajuData}
+            result={result}
+            portfolioItems={portfolioItems}
+            reportUuid={result.report_uuid}
+            onReset={handleReset}
+          />
         )}
       </main>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<WizardApp />} />
+      <Route path="/rebalancing-report/:uuid" element={<RebalancingReportPage />} />
+    </Routes>
   )
 }

@@ -2,6 +2,7 @@ import type {
   SajuAnalyzeRequest, SajuAnalyzeResponse,
   PortfolioParseRequest, PortfolioParseResponse,
   RebalanceRequest, RebalanceResponse,
+  RebalancingReportData,
 } from '../types'
 
 async function post<T>(path: string, body: unknown): Promise<T> {
@@ -51,6 +52,15 @@ async function* streamRebalance(req: RebalanceRequest): AsyncGenerator<StreamEve
   }
 }
 
+async function getReport(uuid: string): Promise<RebalancingReportData> {
+  const res = await fetch(`/api/rebalancing-report/${uuid}`)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail ?? '요청 실패')
+  }
+  return res.json()
+}
+
 export const api = {
   analyzeSaju: (req: SajuAnalyzeRequest) =>
     post<SajuAnalyzeResponse>('/api/saju/analyze', req),
@@ -62,4 +72,6 @@ export const api = {
     post<RebalanceResponse>('/api/rebalance/analyze', req),
 
   streamRebalance,
+
+  getReport,
 }
