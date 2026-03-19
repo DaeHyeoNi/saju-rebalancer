@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 세션 시작 시 필독
+
+새 세션을 시작하고 작업을 시작하기 전에 반드시 다음 두 파일을 읽어라:
+
+1. **`PLAN.md`** — 전체 계획과 각 Phase의 완료 여부
+2. **`PROGRESS.md`** — 완료된 작업 목록과 다음 할 일
+
+읽은 후:
+- 현재 진행 상태를 파악하고 다음 작업을 이어서 진행한다
+- 작업 완료 시 `PROGRESS.md`를 업데이트한다
+- 계획이 변경되면 `PLAN.md`를 수정한다
+
 ## Commands
 
 ### Backend (FastAPI)

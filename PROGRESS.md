@@ -7,8 +7,8 @@
 
 ## 현재 상태
 
-**Phase 1~4 완료** — 주식 사주 궁합 기능 추가 + 프론트엔드 리팩토링
-**다음**: 실 서버 테스트 및 디자인 피드백 반영
+**전체 기능 완료, 서비스 운영 중** (https://saju.daehyeoni.dev)
+**다음**: 백로그 항목 중 우선순위에 따라 개선
 
 ---
 
@@ -31,10 +31,25 @@
 | 2026-03-19 | Phase 3: `IntroPage.tsx` — 히어로 기능 선택 화면 |
 | 2026-03-19 | Phase 4: `CompatibilityPage.tsx` — CEO 검색/수동입력/시진/신고/결과 전체 플로우 |
 | 2026-03-19 | Phase 4: `App.css` — 인트로·궁합 전용 스타일 + 반응형 추가 |
+| 2026-03-19 | Docker Compose 배포 설정 (GHCR 이미지, GitHub Actions 릴리즈) |
+| 2026-03-19 | Docker Compose 포트 파라미터화 (`${FRONTEND_PORT:-80}`), `.env.example` 루트 생성 |
+| 2026-03-19 | OS Nginx reverse proxy 설정 (saju.daehyeoni.dev 서브도메인) |
+| 2026-03-19 | 사용자 Gemini API 키 입력 기능 (`ApiKeyModal`, sessionStorage, `X-Gemini-Api-Key` 헤더) |
+| 2026-03-19 | 백엔드 전체 라우터/서비스에 `api_key` 파라미터 전파 |
+| 2026-03-19 | IntroPage 무료 티어 안내 배너 + 자체 호스팅 GitHub 링크 |
+| 2026-03-19 | UI 버그 수정: 모달 투명, 버튼 겹침, CompatibilityPage API 키 버튼 누락 |
+| 2026-03-19 | 한국 주식 검색 플레이스홀더/힌트 수정 (한국어만 지원 명시) |
+| 2026-03-19 | README 스크린샷 프리뷰 추가 (`docs/images/` — intro, rebalancer, compatibility) |
+| 2026-03-19 | 궁합 점수 단기/중기/장기 분리 (`TermScore`, 3-card grid, i18n 추가) |
+| 2026-03-19 | CLAUDE.md 세션 시작 시 PLAN.md·PROGRESS.md 읽기 지침 추가 |
+| 2026-03-19 | PLAN.md·PROGRESS.md 현재 상태로 동기화 |
 
 ---
 
-## 다음 할 일
+## 다음 할 일 (백로그)
 
-- 실 서버 테스트 (DuckDuckGo CEO 검색 품질 확인)
-- 디자인 피드백 반영
+- 리밸런싱 스트리밍 응답 안정성 개선
+- 모바일 반응형 세부 개선
+- CEO 검색 품질 모니터링 및 개선
+- 에러 상태 UX 개선 (재시도, 상세 오류 메시지)
+- 다크모드 지원
