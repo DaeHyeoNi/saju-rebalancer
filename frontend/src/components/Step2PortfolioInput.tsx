@@ -145,7 +145,8 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
             </div>
           )}
 
-          <h3>인식된 포트폴리오</h3>
+          <p className="confirm-section-title">인식된 포트폴리오</p>
+          <div className="table-scroll">
           <table className="portfolio-table">
             <thead>
               <tr>
@@ -177,8 +178,11 @@ export default function Step2PortfolioInput({ sajuData, onComplete }: Props) {
               </tr>
             </tbody>
           </table>
+          </div>
 
-          <div className="form-section" style={{ marginTop: '1.5rem' }}>
+          <div className="portfolio-section-divider" />
+
+          <div className="form-section" style={{ marginTop: '0' }}>
             <label>운영 방안 / 투자 선호 전략</label>
             <p className="hint">어떤 방식으로 포트폴리오를 운영하고 싶은지 자유롭게 입력하세요.</p>
             <textarea

@@ -403,18 +403,16 @@ export default function CompatibilityPage() {
 
                 <div className="form-row">
                   <label>성별</label>
-                  <div className="radio-group">
+                  <div className="gender-toggle">
                     {['남', '여'].map(g => (
-                      <label key={g} className="radio-label">
-                        <input
-                          type="radio"
-                          name="gender"
-                          value={g}
-                          checked={form.gender === g}
-                          onChange={() => setForm(f => ({ ...f, gender: g }))}
-                        />
+                      <button
+                        key={g}
+                        type="button"
+                        className={`gender-btn${form.gender === g ? ' selected' : ''}`}
+                        onClick={() => setForm(f => ({ ...f, gender: g }))}
+                      >
                         {g}
-                      </label>
+                      </button>
                     ))}
                   </div>
                 </div>

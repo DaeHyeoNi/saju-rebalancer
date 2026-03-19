@@ -16,13 +16,6 @@ interface Props {
   onReset: () => void
 }
 
-const ACTION_COLOR: Record<string, string> = {
-  '매수': '#2e7d32',
-  '매도': '#c62828',
-  '유지': '#1565c0',
-  '비중확대': '#2e7d32',
-  '비중축소': '#c62828',
-}
 
 function displayAction(name: string, action: string): string {
   if (name === '현금') {
@@ -124,11 +117,15 @@ export default function Step3Results({ sajuData, result, portfolioItems, reportU
                   : '-'
                 const label = displayAction(row.name, row.action)
 
+                const badgeCls = label === '매수' || label === '비중확대' ? 'buy'
+                  : label === '매도' || label === '비중축소' ? 'sell'
+                  : 'hold'
+
                 return (
                   <tr key={i}>
                     <td>{row.name}</td>
-                    <td style={{ color: ACTION_COLOR[label] ?? '#333', fontWeight: 700 }}>
-                      {label}
+                    <td>
+                      <span className={`action-badge ${badgeCls}`}>{label}</span>
                     </td>
                     <td>{tradeQty != null ? `${tradeQty}주` : '-'}</td>
                     <td>{row.amount.toLocaleString()}원</td>

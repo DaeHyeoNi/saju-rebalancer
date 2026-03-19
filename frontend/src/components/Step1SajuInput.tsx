@@ -94,23 +94,26 @@ export default function Step1SajuInput({ onComplete }: Props) {
             value={form.birth_hour ?? '모름'}
             onChange={e => setForm(f => ({ ...f, birth_hour: e.target.value === '모름' ? null : e.target.value }))}
           >
-            {SIJU_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            <option value="모름">시진 선택 (모르면 미입력)</option>
+            {SIJU_OPTIONS.filter(s => s.value !== '모름').map(s => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
           </select>
           <span className="hint">모를 경우 정확도가 낮아질 수 있습니다.</span>
         </div>
 
         <div className="form-row">
           <label>성별</label>
-          <div className="radio-group">
+          <div className="gender-toggle">
             {['남', '여'].map(g => (
-              <label key={g} className="radio-label">
-                <input
-                  type="radio" name="gender" value={g}
-                  checked={form.gender === g}
-                  onChange={() => setForm(f => ({ ...f, gender: g }))}
-                />
+              <button
+                key={g}
+                type="button"
+                className={`gender-btn${form.gender === g ? ' selected' : ''}`}
+                onClick={() => setForm(f => ({ ...f, gender: g }))}
+              >
                 {g}
-              </label>
+              </button>
             ))}
           </div>
         </div>
