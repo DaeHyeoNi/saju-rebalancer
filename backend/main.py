@@ -57,9 +57,12 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173")
+_allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite dev server
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
