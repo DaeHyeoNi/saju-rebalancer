@@ -69,12 +69,11 @@ def _search_ceo_info(ticker: str) -> dict[str, str]:
     try:
         with DDGS() as ddgs:
             for query in queries:
-                results = list(ddgs.text(query, max_results=4))
-        for r in results:
-            title = r.get("title", "")
-            body = r.get("body", "")
-            if title or body:
-                snippets.append(f"{title}\n{body}".strip())
+                for r in ddgs.text(query, max_results=4):
+                    title = r.get("title", "")
+                    body = r.get("body", "")
+                    if title or body:
+                        snippets.append(f"{title}\n{body}".strip())
     except Exception as exc:
         raise RuntimeError(f"DuckDuckGo 검색 실패: {exc}") from exc
 
