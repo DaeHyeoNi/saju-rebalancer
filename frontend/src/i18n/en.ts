@@ -245,6 +245,8 @@ const en = {
     introBannerTitle: 'Free tier usage limit reached?',
     introBannerDesc: 'This service runs on a free tier. If the quota is exhausted, responses may slow down or fail. You can set your own Gemini API key to use your personal quota.',
     introBannerBtn: 'Set API Key',
+    selfHostNote: 'Or self-host it — only your key is used →',
+    selfHostLink: 'View on GitHub',
     inputLabel: 'Gemini API Key',
     inputPlaceholder: 'AIza...',
     warningTitle: 'Security Notice',

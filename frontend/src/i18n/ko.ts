@@ -224,6 +224,8 @@ const ko = {
     introBannerTitle: '무료 티어 사용량 초과 시',
     introBannerDesc: '서비스가 무료 티어로 운영되어 사용량 한도에 도달하면 응답이 느려지거나 오류가 발생할 수 있습니다. 본인의 Gemini API 키를 설정하면 직접 할당량으로 이용할 수 있습니다.',
     introBannerBtn: 'API 키 설정하기',
+    selfHostNote: '또는 오픈소스로 직접 호스팅하면 본인 키만 사용됩니다 →',
+    selfHostLink: 'GitHub에서 보기',
     inputLabel: 'Gemini API 키',
     inputPlaceholder: 'AIza...',
     warningTitle: '보안 주의사항',

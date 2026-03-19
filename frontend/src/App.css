@@ -696,6 +696,15 @@ textarea { resize: vertical; }
   color: rgba(255,255,255,0.55);
   line-height: 1.45;
 }
+.api-key-banner-selfhost {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 0.2rem;
+}
+.api-key-banner-selfhost a {
+  color: rgba(255,255,255,0.6);
+  text-decoration: underline;
+}
 .api-key-banner-btn {
   white-space: nowrap;
   flex-shrink: 0;

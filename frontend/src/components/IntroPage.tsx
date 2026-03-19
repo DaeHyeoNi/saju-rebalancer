@@ -56,6 +56,12 @@ export default function IntroPage() {
         <div className="api-key-banner-content">
           <span className="api-key-banner-title">🔑 {t('apiKey.introBannerTitle')}</span>
           <span className="api-key-banner-desc">{t('apiKey.introBannerDesc')}</span>
+          <span className="api-key-banner-selfhost">
+            {t('apiKey.selfHostNote')}{' '}
+            <a href="https://github.com/DaeHyeoNi/sajufinance" target="_blank" rel="noopener noreferrer">
+              {t('apiKey.selfHostLink')}
+            </a>
+          </span>
         </div>
         <button className="btn-secondary api-key-banner-btn" onClick={() => setShowApiKeyModal(true)}>
           {t('apiKey.introBannerBtn')}
