@@ -881,6 +881,13 @@ textarea { resize: vertical; }
   font-weight: 500;
 }
 
+.ceo-birth-year-only {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #9e8e7e);
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
 /* 현지 시간 안내 박스 */
 .local-time-infobox {
   background: #fffbf0;

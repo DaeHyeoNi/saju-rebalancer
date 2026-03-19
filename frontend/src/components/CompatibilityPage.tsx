@@ -52,6 +52,7 @@ function loadBirthInfo(): Pick<FormState, 'birth_year' | 'birth_month' | 'birth_
 }
 
 function buildDateString(year: string, month: string, day: string): string {
+  if (!month && !day) return year
   const mm = (month || '1').padStart(2, '0')
   const dd = (day || '1').padStart(2, '0')
   return `${year}-${mm}-${dd}`
@@ -180,6 +181,7 @@ function ManualCeoForm({
             onChange={e => onChange({ ...value, day: e.target.value })}
           />
         </div>
+        <span className="hint">{t('compatibility.manualBirthHint')}</span>
       </div>
 
       <div className="form-row">
@@ -627,7 +629,12 @@ export default function CompatibilityPage() {
                     </div>
                     <div className="ceo-info-row">
                       <span className="ceo-info-label">{t('compatibility.ceoBirth')}</span>
-                      <span className="ceo-info-value">{ceoInfo.ceo_birth_date}</span>
+                      <span className="ceo-info-value">
+                        {ceoInfo.ceo_birth_date}
+                        {!ceoInfo.ceo_birth_date.includes('-') && (
+                          <span className="ceo-birth-year-only"> ({t('compatibility.birthYearOnly')})</span>
+                        )}
+                      </span>
                     </div>
                     {ceoInfo.from_cache && (
                       <p className="hint" style={{ marginTop: '0.5rem' }}>{t('compatibility.ceoCached')}</p>
@@ -642,7 +649,15 @@ export default function CompatibilityPage() {
                       className="btn-secondary"
                       onClick={() => {
                         setUseCustomDate(true)
-                        setManualCeo({ company_name: '', ceo_name: '', year: '', month: '', day: '', birth_hour: '모름' })
+                        const parts = ceoInfo.ceo_birth_date.split('-')
+                        setManualCeo({
+                          company_name: ceoInfo.company_name || '',
+                          ceo_name: ceoInfo.ceo_name || '',
+                          year: parts[0] || '',
+                          month: parts[1] || '',
+                          day: parts[2] || '',
+                          birth_hour: '모름',
+                        })
                         setError(null)
                       }}
                     >
