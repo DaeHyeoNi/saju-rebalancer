@@ -9,6 +9,7 @@ import RebalancingReportPage from './components/RebalancingReportPage'
 import IntroPage from './components/IntroPage'
 import CompatibilityPage from './components/CompatibilityPage'
 import LangToggle from './components/LangToggle'
+import { usePageMeta } from './hooks/usePageMeta'
 import './App.css'
 
 type Step = 1 | 2 | 3
@@ -16,6 +17,7 @@ type Step = 1 | 2 | 3
 function WizardApp() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  usePageMeta('사주 리밸런서', 'Four Pillars Rebalancer')
   const [step, setStep] = useState<Step>(1)
   const [sajuData, setSajuData] = useState<SajuAnalyzeResponse | null>(null)
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([])

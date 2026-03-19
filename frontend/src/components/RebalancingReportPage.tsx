@@ -4,11 +4,13 @@ import { useTranslation } from 'react-i18next'
 import type { RebalancingReportData } from '../types'
 import { api } from '../api/client'
 import Step3Results from './Step3Results'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export default function RebalancingReportPage() {
   const { uuid } = useParams<{ uuid: string }>()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  usePageMeta('분석 결과', 'Analysis Report')
   const [report, setReport] = useState<RebalancingReportData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)

@@ -1,10 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import LangToggle from './LangToggle'
+import { FourPillarsInfoBox } from './FourPillarsTooltip'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export default function IntroPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  usePageMeta('사주재무연구소', 'Four Pillars Finance Lab')
 
   return (
     <div className="intro-page" style={{ position: 'relative' }}>
@@ -14,6 +17,9 @@ export default function IntroPage() {
         <div className="intro-logo">{t('intro.logo')}</div>
         <h1 className="intro-title">{t('intro.title')}</h1>
         <p className="intro-subtitle">{t('intro.subtitle')}</p>
+
+        {/* 영어 모드에서만 표시되는 "Four Pillars란?" 인포박스 */}
+        <FourPillarsInfoBox />
       </div>
 
       <div className="intro-cards">

@@ -8,6 +8,7 @@ import type {
   CompatibilityResponse,
 } from '../types'
 import LangToggle from './LangToggle'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 type PageStep = 'input' | 'ceo-confirm' | 'result'
 type Market = 'KR' | 'US'
@@ -201,6 +202,7 @@ function ManualCeoForm({
 export default function CompatibilityPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  usePageMeta('주식 사주 궁합', 'Stock Compatibility')
   const [step, setStep] = useState<PageStep>('input')
   const [ceoInfo, setCeoInfo] = useState<CeoLookupResponse | null>(null)
   const [useCustomDate, setUseCustomDate] = useState(false)
