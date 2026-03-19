@@ -104,9 +104,9 @@ def _search_ceo_info(keyword: str) -> dict[str, str]:
         raise RuntimeError(f"Gemini CEO 정보 파싱 실패: {exc}") from exc
 
     if not parsed.get("ceo_name"):
-        raise RuntimeError(f"'{ticker}' CEO 이름을 검색 결과에서 찾을 수 없습니다.")
+        raise RuntimeError(f"'{keyword}' CEO 이름을 검색 결과에서 찾을 수 없습니다.")
     if not parsed.get("ceo_birth_date"):
-        raise RuntimeError(f"'{ticker}' CEO 생년월일을 검색 결과에서 찾을 수 없습니다.")
+        raise RuntimeError(f"'{keyword}' CEO 생년월일을 검색 결과에서 찾을 수 없습니다.")
 
     return {
         "company_name": parsed.get("company_name") or ticker,
