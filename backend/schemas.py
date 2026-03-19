@@ -71,3 +71,53 @@ class RebalancingReportData(BaseModel):
     rebalance_table: list[RebalanceItem]
     narrative: str
     created_at: str
+
+
+# ── 궁합: CEO 조회 ─────────────────────────────────────────
+
+class CeoLookupRequest(BaseModel):
+    ticker: str  # 예: "TSLA", "005930" (삼성전자)
+
+
+class CeoLookupResponse(BaseModel):
+    ticker: str
+    found: bool
+    company_name: str = ""
+    ceo_name: str = ""
+    ceo_birth_date: str = ""   # "YYYY-MM-DD" 또는 "YYYY"
+    from_cache: bool = False
+
+
+# ── 궁합: 분석 요청 ────────────────────────────────────────
+
+class CompatibilityRequest(BaseModel):
+    birth_year: int
+    birth_month: int
+    birth_day: int
+    birth_hour: str | None = None  # 시진
+    gender: str                    # "남" / "여"
+    ticker: str
+    # 사용자가 수동으로 수정한 CEO 생년월일 (None이면 캐시/검색 결과 사용)
+    custom_ceo_birth_date: str | None = None  # "YYYY-MM-DD"
+
+
+# ── 궁합: 분석 결과 ────────────────────────────────────────
+
+class CompatibilityResponse(BaseModel):
+    ticker: str
+    company_name: str
+    ceo_name: str
+    ceo_birth_date: str
+    compatibility_score: int   # 1~5 (★ 개수)
+    recommendation: str        # "매수" | "관망" | "주의"
+    reading: str               # 궁합 풀이 (마크다운)
+
+
+# ── 잘못된 데이터 신고 ─────────────────────────────────────
+
+class CeoReportRequest(BaseModel):
+    ticker: str
+    cached_ceo_name: str
+    cached_birth_date: str
+    correct_birth_date: str | None = None
+    note: str | None = None

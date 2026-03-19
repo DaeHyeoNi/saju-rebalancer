@@ -10,7 +10,7 @@ from typing import Any
 from google import genai
 
 _client: genai.Client | None = None
-_MODEL = "gemini-2.5-flash"
+_MODEL = "gemini-3.1-flash-lite-preview"
 
 
 def _get_client() -> genai.Client:
@@ -196,3 +196,73 @@ async def stream_rebalancing(
             collected.append(chunk.text)
             yield "chunk", chunk.text
     yield "done", _extract_json("".join(collected))
+
+
+# ── 4. 사주 궁합 분석 ──────────────────────────────────────────────────────────
+
+def generate_saju_compatibility(
+    user_pillars: dict[str, Any],
+    user_gender: str,
+    ceo_name: str,
+    ceo_pillars: dict[str, Any],
+    company_name: str,
+    ticker: str,
+) -> dict[str, Any]:
+    """사용자 사주 + CEO 사주 궁합 분석.
+
+    Args:
+        user_pillars: 투자자의 사주 팔자 데이터 (sajupy 계산 결과).
+        user_gender: 투자자 성별 ("남" / "여").
+        ceo_name: CEO 이름.
+        ceo_pillars: CEO의 사주 팔자 데이터 (sajupy 계산 결과).
+        company_name: 기업명.
+        ticker: 종목 코드.
+
+    Returns:
+        {
+            "compatibility_score": 1~5 (정수),
+            "recommendation": "매수" | "관망" | "주의",
+            "reading": "마크다운 풀이 텍스트"
+        }
+    """
+    today = date.today().strftime("%Y년 %m월 %d일")
+    prompt = f"""당신은 사주 명리학과 투자 분석을 결합한 전문가입니다.
+오늘 날짜: {today}
+
+아래는 투자자(사용자)와 투자 대상 기업 CEO의 사주 팔자 데이터입니다.
+사용자의 사주와 CEO의 사주 궁합을 분석하여 이 주식에 대한 투자 적합도를 판단해주세요.
+
+## 투자자 정보
+성별: {user_gender}
+사주 데이터 (JSON):
+{json.dumps(user_pillars, ensure_ascii=False, indent=2)}
+
+## CEO 정보
+기업: {company_name} ({ticker})
+CEO: {ceo_name}
+사주 데이터 (JSON):
+{json.dumps(ceo_pillars, ensure_ascii=False, indent=2)}
+
+## 분석 기준
+1. 투자자의 일간(日干)과 CEO 일간의 오행 상생/상극 관계
+2. 투자자의 재성(財星) 흐름 — 이 CEO가 이끄는 기업이 투자자에게 재물을 가져다주는가
+3. 음양 균형 및 사주 조화
+4. 투자자의 현재 운세 흐름과 이 투자의 타이밍
+
+## 분석 시 주의사항
+- CEO의 태어난 시각은 불명이므로 일간(日干) 위주로 분석합니다.
+- CEO 생년월일은 현지(출생지) 기준입니다.
+
+응답은 반드시 아래 JSON 형식으로, 마크다운 코드블록으로 감싸세요:
+```json
+{{
+  "compatibility_score": 1에서 5 사이의 정수 (5가 최고 궁합),
+  "recommendation": "매수 또는 관망 또는 주의",
+  "reading": "사주 궁합 풀이 텍스트 (마크다운, 3~5문단, 한국어)"
+}}
+```
+
+주의: 오늘 날짜({today}) 기준 정보만 사용하세요. 추측이나 창작 금지."""
+
+    result = _call(prompt)
+    return _extract_json(result)

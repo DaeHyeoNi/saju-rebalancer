@@ -30,3 +30,26 @@ class RebalancingReport(Base):
     rebalance_table: Mapped[str] = mapped_column(Text)  # JSON array
     narrative: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class CeoCache(Base):
+    __tablename__ = "ceo_cache"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    ticker: Mapped[str] = mapped_column(String(20), unique=True, nullable=False, index=True)
+    company_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    ceo_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    ceo_birth_date: Mapped[str] = mapped_column(String(20), nullable=False)  # "YYYY-MM-DD" 또는 "YYYY"
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class CeoFeedback(Base):
+    __tablename__ = "ceo_feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    ticker: Mapped[str] = mapped_column(String(20), nullable=False)
+    cached_ceo_name: Mapped[str] = mapped_column(String(100))
+    cached_birth_date: Mapped[str] = mapped_column(String(20))
+    reported_correct_birth_date: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

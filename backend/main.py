@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
-from routers import saju, portfolio, rebalance, report
+from routers import saju, portfolio, rebalance, report, compatibility
 
 
 @asynccontextmanager
@@ -29,6 +29,7 @@ app.include_router(saju.router)
 app.include_router(portfolio.router)
 app.include_router(rebalance.router)
 app.include_router(report.router)
+app.include_router(compatibility.router)
 
 
 @app.get("/health")
