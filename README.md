@@ -1,18 +1,20 @@
-# 사주 포트폴리오 리밸런서
+# 사주재무연구소
 
-사주 명리학과 AI를 결합하여 개인 맞춤형 투자 포트폴리오 리밸런싱을 제안하는 웹 애플리케이션입니다.
-
-생년월일·시진·성별을 입력하면 사주 팔자를 분석하고, 보유 포트폴리오를 자유 형식으로 입력하면 Gemini AI가 사주 풀이를 토대로 맞춤형 리밸런싱 전략을 제시합니다.
+사주 명리학과 AI를 결합한 투자 분석 웹 애플리케이션입니다.
 
 ---
 
 ## 주요 기능
 
-- **사주 팔자 분석** — sajupy 라이브러리로 사주를 계산하고 Gemini AI가 투자 성향 중심의 풀이 생성
-- **자유형식 포트폴리오 파싱** — 텍스트로 입력한 포트폴리오를 AI가 구조화된 데이터로 변환 (KRW/USD 자동 환산)
-- **AI 리밸런싱 제안** — 사주 용신·기신과 사용자 선호 전략을 종합한 매수/매도/유지 액션 테이블 생성
-- **결과 공유** — UUID 기반 고유 URL로 리밸런싱 결과 공유
-- **사주 캐싱** — 동일한 생년월일/시진/성별 조합은 DB에서 즉시 반환 (Gemini 재호출 없음)
+### ☯ 사주 포트폴리오 리밸런서
+생년월일·시진·성별을 입력하면 사주 팔자를 분석하고, 보유 포트폴리오를 자유 형식으로 입력하면 Gemini AI가 사주 풀이를 토대로 맞춤형 리밸런싱 전략을 제시합니다.
+
+### 🔮 주식 사주 궁합
+내 사주와 기업 CEO의 사주 궁합을 분석하여 투자 적합도를 판단합니다.
+- 한국 주식: 종목명 검색으로 선택 (KOSPI·KOSDAQ 2,800여 종목)
+- 미국 주식: 티커 직접 입력 (TSLA, AAPL 등)
+- CEO 생년월일 자동 조회 (DuckDuckGo + Gemini 파싱)
+- 자동 조회 실패 시 수동 입력 + 잘못된 정보 신고 기능
 
 ---
 
@@ -22,8 +24,10 @@
 |------|------|
 | Frontend | React 18, TypeScript, Vite |
 | Backend | FastAPI, Python 3.12, uvicorn |
-| AI | Google Gemini 2.5 Flash (`google-genai`) |
+| AI | Google Gemini (`gemini-3.1-flash-lite-preview`) |
 | 사주 계산 | sajupy |
+| 한국 주식 데이터 | pykrx |
+| CEO 검색 | ddgs (DuckDuckGo) + Gemini 파싱 |
 | DB | SQLAlchemy + SQLite (MySQL 전환 가능) |
 | 패키지 관리 | uv (backend), npm (frontend) |
 
@@ -35,13 +39,13 @@
 
 - Python 3.12+
 - Node.js 18+
-- [uv](https://docs.astral.sh/uv/) (Python 패키지 매니저)
-- Google Gemini API 키
+- [uv](https://docs.astral.sh/uv/)
+- Google Gemini API 키 ([발급](https://aistudio.google.com/apikey))
 
 ### 1. 저장소 클론
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/DaeHyeoNi/saju-rebalancer.git
 cd saju-rebalancer
 ```
 
@@ -51,10 +55,7 @@ cd saju-rebalancer
 cd backend
 cp .env.example .env
 # .env 파일에 GEMINI_API_KEY 입력
-```
 
-```bash
-# 의존성 설치 및 서버 실행
 uv run uvicorn main:app --reload
 # → http://localhost:8000
 ```
@@ -74,9 +75,18 @@ Vite 개발 서버는 `/api/*` 요청을 `localhost:8000`으로 자동 프록시
 
 ## 사용 방법
 
-1. **Step 1 — 사주 입력**: 생년월일, 태어난 시(시진), 성별을 입력하고 분석 시작
-2. **Step 2 — 포트폴리오 입력**: 보유 자산을 자유 형식으로 입력 (예: "삼성전자 100주 8만원, AAPL 10주 $190") → AI가 파싱 후 확인 → 운영 방안/선호 전략 입력
-3. **Step 3 — 결과 확인**: 사주 기둥, AI 풀이, 리밸런싱 표(매수/매도/유지), 종합 해설 출력 → 고유 URL로 공유 가능
+### 사주 포트폴리오 리밸런서
+
+1. **Step 1 — 사주 입력**: 생년월일, 태어난 시(시진), 성별 입력
+2. **Step 2 — 포트폴리오 입력**: 보유 자산을 자유 형식으로 입력 (예: `삼성전자 100주 8만원, AAPL 10주 $190`) → AI 파싱 확인 → 운영 방안 입력
+3. **Step 3 — 결과 확인**: 사주 기둥, AI 풀이, 리밸런싱 표, 종합 해설 → 고유 URL로 공유 가능
+
+### 주식 사주 궁합
+
+1. 생년월일·시진·성별 입력
+2. 한국/미국 주식 선택 후 종목 검색 또는 티커 입력
+3. CEO 정보 자동 조회 → 확인 또는 수동 수정
+4. 궁합 점수(★), 매수/관망/주의 추천, 풀이 텍스트 확인
 
 ---
 
@@ -85,29 +95,34 @@ Vite 개발 서버는 `/api/*` 요청을 `localhost:8000`으로 자동 프록시
 ```
 saju-rebalancer/
 ├── backend/
-│   ├── main.py                  # FastAPI 앱 진입점
-│   ├── database.py              # SQLAlchemy 엔진/세션
-│   ├── models.py                # SajuCache ORM 모델
-│   ├── schemas.py               # Pydantic 요청/응답 스키마
+│   ├── main.py                   # FastAPI 앱 진입점
+│   ├── database.py               # SQLAlchemy 엔진/세션
+│   ├── models.py                 # ORM 모델 (SajuCache, CeoCache, CeoFeedback, RebalancingReport)
+│   ├── schemas.py                # Pydantic 요청/응답 스키마
+│   ├── data/
+│   │   └── korean_stocks.json    # KOSPI·KOSDAQ 상장종목 (pykrx로 수집)
 │   ├── routers/
-│   │   ├── saju.py              # POST /api/saju/analyze
-│   │   ├── portfolio.py         # POST /api/portfolio/parse
-│   │   ├── rebalance.py         # POST /api/rebalance/analyze
-│   │   └── report.py            # GET  /api/report/{uuid}
+│   │   ├── saju.py               # POST /api/saju/analyze
+│   │   ├── portfolio.py          # POST /api/portfolio/parse
+│   │   ├── rebalance.py          # POST /api/rebalance/analyze
+│   │   ├── report.py             # GET  /api/rebalancing-report/{uuid}
+│   │   └── compatibility.py      # POST /api/compatibility/*
 │   └── services/
-│       ├── gemini_service.py    # Gemini API 래퍼
-│       ├── saju_service.py      # 사주 계산 + DB 캐시 로직
-│       └── portfolio_service.py # 포트폴리오 파싱
-└── frontend/
-    └── src/
-        ├── App.tsx              # 스텝 상태 관리, 라우팅
-        ├── types.ts             # 백엔드 스키마와 대응하는 TS 타입
-        ├── api/client.ts        # fetch 래퍼
-        └── components/
-            ├── Step1SajuInput.tsx
-            ├── Step2PortfolioInput.tsx
-            ├── Step3Results.tsx
-            └── RebalancingReportPage.tsx
+│       ├── gemini_service.py     # Gemini API 래퍼
+│       ├── saju_service.py       # 사주 계산 + DB 캐시
+│       ├── portfolio_service.py  # 포트폴리오 파싱
+│       └── ceo_search_service.py # CEO 정보 검색 (DuckDuckGo + Gemini)
+└── frontend/src/
+    ├── App.tsx                   # 라우팅
+    ├── types.ts                  # TypeScript 타입
+    ├── api/client.ts             # fetch 래퍼
+    └── components/
+        ├── IntroPage.tsx         # 홈 (기능 선택)
+        ├── Step1SajuInput.tsx
+        ├── Step2PortfolioInput.tsx
+        ├── Step3Results.tsx
+        ├── CompatibilityPage.tsx # 주식 사주 궁합
+        └── RebalancingReportPage.tsx
 ```
 
 ---
@@ -116,29 +131,33 @@ saju-rebalancer/
 
 | Method | Path | 설명 |
 |--------|------|------|
-| POST | `/api/saju/analyze` | 사주 팔자 계산 + 풀이 (결과 캐싱) |
+| POST | `/api/saju/analyze` | 사주 팔자 계산 + 풀이 (캐싱) |
 | POST | `/api/portfolio/parse` | 자유형식 텍스트 → 구조화된 포트폴리오 |
 | POST | `/api/rebalance/analyze` | 통합 리밸런싱 분석 |
-| GET  | `/api/report/{uuid}` | 저장된 리밸런싱 결과 조회 |
+| GET  | `/api/rebalancing-report/{uuid}` | 저장된 리밸런싱 결과 조회 |
+| POST | `/api/compatibility/lookup` | 종목 CEO 정보 조회 |
+| POST | `/api/compatibility/analyze` | 사주 궁합 분석 |
+| POST | `/api/compatibility/report` | 잘못된 CEO 정보 신고 |
+| GET  | `/api/compatibility/korean-stocks/search?q=` | 한국 종목명 검색 |
 | GET  | `/health` | 헬스체크 |
 
 ---
 
 ## 환경변수
 
-`backend/.env` 파일:
+`backend/.env`:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# SQLite (기본값, 별도 설정 불필요)
+# SQLite (기본값)
 # DATABASE_URL=sqlite:///./saju.db
 
-# MySQL로 전환 시
+# MySQL 전환 시
 # DATABASE_URL=mysql+pymysql://user:password@host:3306/dbname
 ```
 
-MySQL 전환 시 `uv add pymysql` 추가 필요.
+MySQL 전환 시 `uv add pymysql` 필요.
 
 ---
 
@@ -147,13 +166,21 @@ MySQL 전환 시 `uv add pymysql` 추가 필요.
 ```bash
 # 백엔드
 cd backend
-uv run uvicorn main:app --reload   # 개발 서버
-uv add <package>                   # 패키지 추가
-uv remove <package>                # 패키지 제거
+uv run uvicorn main:app --reload
+uv add <package>
+uv remove <package>
 
 # 프론트엔드
 cd frontend
-npm run dev      # 개발 서버
-npm run build    # 프로덕션 빌드
-npm run lint     # ESLint
+npm run dev
+npm run build
+npm run lint
 ```
+
+---
+
+## 주의사항
+
+- 본 서비스는 엔터테인먼트 목적으로 제공되며 실제 투자 조언이 아닙니다.
+- CEO 생년월일 정보는 자동 검색 결과로, 부정확할 수 있습니다. 수동 입력 또는 신고 기능을 활용하세요.
+- 사주 분석은 명리학 이론에 기반하며 투자 결과를 보장하지 않습니다.
