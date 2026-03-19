@@ -45,8 +45,8 @@
 ### 1. 저장소 클론
 
 ```bash
-git clone https://github.com/DaeHyeoNi/saju-rebalancer.git
-cd saju-rebalancer
+git clone https://github.com/DaeHyeoNi/sajufinance.git
+cd sajufinance
 ```
 
 ### 2. 백엔드 설정
@@ -93,7 +93,7 @@ Vite 개발 서버는 `/api/*` 요청을 `localhost:8000`으로 자동 프록시
 ## 프로젝트 구조
 
 ```
-saju-rebalancer/
+sajufinance/
 ├── backend/
 │   ├── main.py                   # FastAPI 앱 진입점
 │   ├── database.py               # SQLAlchemy 엔진/세션
